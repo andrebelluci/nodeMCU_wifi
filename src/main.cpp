@@ -1,15 +1,16 @@
-#include <arduino.h>
-#include <ESP8266WiFi.h> //INCLUSÃO DA BIBLIOTECA NECESSÁRIA PARA FUNCIONAMENTO DO CÓDIGO
+#include "Arduino.h"
+#include "ESP8266WiFi.h" //INCLUSÃO DA BIBLIOTECA NECESSÁRIA PARA FUNCIONAMENTO DO CÓDIGO
 
-const char *ssid = "Bade";      // VARIÁVEL QUE ARMAZENA O NOME DA REDE SEM FIO EM QUE VAI CONECTAR
+const char *ssid = "Bade";         // VARIÁVEL QUE ARMAZENA O NOME DA REDE SEM FIO EM QUE VAI CONECTAR
 const char *password = "23062017"; // VARIÁVEL QUE ARMAZENA A SENHA DA REDE SEM FIO EM QUE VAI CONECTAR
 
 WiFiServer server(80); // CASO OCORRA PROBLEMAS COM A PORTA 80, UTILIZE OUTRA (EX:8082,8089) E A CHAMADA DA URL FICARÁ IP:PORTA(EX: 192.168.0.15:8082)
 
 void setup()
 {
+  pinMode(D1, OUTPUT);
   Serial.begin(9600); // INICIALIZA A SERIAL
-  delay(200);            // INTERVALO DE 10 MILISEGUNDOS
+  delay(200);         // INTERVALO DE 10 MILISEGUNDOS
 
   Serial.println("");            // PULA UMA LINHA NA JANELA SERIAL
   Serial.println("");            // PULA UMA LINHA NA JANELA SERIAL
@@ -22,7 +23,9 @@ void setup()
   {                    // ENQUANTO STATUS FOR DIFERENTE DE CONECTADO
     delay(500);        // INTERVALO DE 500 MILISEGUNDOS
     Serial.print("."); // ESCREVE O CARACTER NA SERIAL
+    digitalWrite(D1, HIGH);
   }
+  digitalWrite(D1, LOW);
   Serial.println("");                        // PULA UMA LINHA NA JANELA SERIAL
   Serial.print("Conectado a rede sem fio "); // ESCREVE O TEXTO NA SERIAL
   Serial.println(ssid);                      // ESCREVE O NOME DA REDE NA SERIAL
@@ -36,6 +39,19 @@ void setup()
 
 void loop()
 {
+  pinMode(D1, OUTPUT);
+  pinMode(D2, OUTPUT);
+  pinMode(D3, OUTPUT);
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    digitalWrite(D1, HIGH);
+  }
+  else
+  {
+    digitalWrite(D1, LOW);
+    digitalWrite(D2, HIGH);
+  }
+
   WiFiClient client = server.available(); // VERIFICA SE ALGUM CLIENTE ESTÁ CONECTADO NO SERVIDOR
   if (!client)
   {         // SE NÃO EXISTIR CLIENTE CONECTADO, FAZ
@@ -44,8 +60,10 @@ void loop()
   Serial.println("Novo cliente se conectou!"); // ESCREVE O TEXTO NA SERIAL
   while (!client.available())
   {           // ENQUANTO CLIENTE ESTIVER CONECTADO
-    delay(1); // INTERVALO DE 1 MILISEGUNDO
+    digitalWrite(D3, HIGH);
+    delay(1000);
   }
+  digitalWrite(D3, LOW);
   String request = client.readStringUntil('\r'); // FAZ A LEITURA DA PRIMEIRA LINHA DA REQUISIÇÃO
   Serial.println(request);                       // ESCREVE A REQUISIÇÃO NA SERIAL
   client.flush();                                // AGUARDA ATÉ QUE TODOS OS DADOS DE SAÍDA SEJAM ENVIADOS AO CLIENTE
@@ -58,7 +76,7 @@ void loop()
   client.println("<h1><center>Ola cliente!</center></h1>");          // ESCREVE "Ola cliente!" NA PÁGINA
   client.println("<center><font size='5'>Seja bem vindo!</center>"); // ESCREVE "Seja bem vindo!" NA PÁGINA
   client.println("</html>");                                         // FECHA A TAG "html"
-  delay(1);                                                          // INTERVALO DE 1 MILISEGUNDO
+  delay(500);                                                          // INTERVALO DE 1 MILISEGUNDO
   Serial.println("Cliente desconectado");                            // ESCREVE O TEXTO NA SERIAL
   Serial.println("");                                                // PULA UMA LINHA NA JANELA SERIAL
 }
